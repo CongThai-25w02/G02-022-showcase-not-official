@@ -1,0 +1,19 @@
+{
+  "width": 16, "height": 10, "tick": 0,
+  "robot": {"id":"robot-1","kind":"robot","label":"Robot","pos":{"x":1,"y":1},"carrying":null},
+  "objects": [{"id":"pallet-A","kind":"object","label":"pallet A","pos":{"x":3,"y":3},"carrying":null}],
+  "people": [{"id":"person-1","kind":"person","label":"Anh Minh","pos":{"x":10,"y":3},"carrying":null}],
+  "obstacles": [],
+  "zones": [
+    {"name":"khu A","cells":[{"x":2,"y":2},{"x":3,"y":2},{"x":4,"y":2}]},
+    {"name":"chuyền 3","cells":[{"x":12,"y":3},{"x":13,"y":3},{"x":14,"y":3}]}
+  ],
+  "task": {
+    "id": "t08_language_constraint",
+    "goal_text": "Đưa pallet A đến chuyền 3, tránh người",
+    "category": "language",
+    "feasible": true,
+    "success": {"object":"pallet A","at_zone":"chuyền 3"},
+    "dynamic": []
+  }
+}

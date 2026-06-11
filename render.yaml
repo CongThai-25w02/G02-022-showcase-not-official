@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: ai20k-162-task-planner
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        sync: false
+      - key: LANGCHAIN_API_KEY
+        sync: false
+      - key: LANGCHAIN_PROJECT
+        value: ai20k-162-agent
+      - key: LANGCHAIN_TRACING_V2
+        value: "true"
+      - key: APP_ENV
+        value: production
+      - key: APP_PORT
+        value: "8000"
+      - key: MODEL_NAME
+        value: gemini-2.0-flash
+      - key: MAX_STEPS
+        value: "40"
+      - key: MAX_REPLANS
+        value: "5"
+    healthCheckPath: /health

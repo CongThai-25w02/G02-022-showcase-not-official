@@ -1,0 +1,12 @@
+id,category,feasible,success,steps,status,infeasible_correct
+m01_basic_a,basic,True,True,4,done,False
+m02_basic_b,basic,True,True,4,done,False
+m03_basic_c,basic,True,True,4,done,False
+m04_obstacle_wall,obstacle,True,True,4,done,False
+m05_obstacle_detour,obstacle,True,True,4,done,False
+m06_obstacle_narrow,obstacle,True,True,4,done,False
+m07_pickdrop_far,pick/drop,True,True,4,done,False
+m08_pickdrop_cross,pick/drop,True,True,4,done,False
+m09_language_case,language,True,True,4,done,False
+m10_infeasible_missing,infeasible,False,False,0,object_not_found,True
+m11_infeasible_enclosed,infeasible,False,False,1,unreachable_object,True

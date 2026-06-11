@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RoboPlanner — Kho thông minh AI</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <div class="header-left">
+        <h1>RoboPlanner</h1>
+        <span class="header-desc">Lập kế hoạch tác vụ kho bằng AI agent</span>
+        <span class="sim-badge">thế giới mô phỏng · agent thật</span>
+        <a href="view3d.html" style="margin-left:12px;font-size:12px;text-decoration:none;padding:3px 10px;border-radius:999px;border:1px solid rgba(125,145,170,0.45);color:inherit;opacity:.85">Bản 3D ▶</a>
+      </div>
+      <span id="status-badge" class="status-badge status-idle">CHƯA CHẠY</span>
+    </header>
+
+    <!-- Use-case block -->
+    <details class="use-case-details">
+    <summary class="use-case-summary">Về ứng dụng &amp; lộ trình</summary>
+    <section class="use-case-block">
+      <span class="use-case-icon">🏭</span>
+      <div class="use-case-body">
+        <p class="use-case-text">
+          <strong>Ứng dụng:</strong> Robot vận chuyển kho VinFast — vận hành viên ra lệnh tiếng Việt
+          thay vì lập trình; agent tự xử lý khi môi trường đổi; trace minh bạch để audit an toàn.
+        </p>
+        <p class="roadmap-text">
+          <strong>Lộ trình tới robot thật:</strong> Bản này chứng minh lớp
+          <em>NGÔN NGỮ → KẾ HOẠCH → KIỂM CHỨNG</em> trong mô phỏng;
+          bản sản xuất nối tool move/pick vào ROS + perception camera thật.
+        </p>
+      </div>
+    </section>
+    </details>
+
+    <main class="app-body">
+      <section class="controls">
+
+        <!-- Scenario selector -->
+        <div class="control-group">
+          <label for="scenario-select">Kịch bản:</label>
+          <select id="scenario-select">
+            <option value="warehouse_blocked">Kho có người chặn lối (hero)</option>
+            <option value="warehouse_basic">Kho cơ bản (không người)</option>
+            <option value="warehouse_dynamic">Kho động (người di chuyển)</option>
+          </select>
+          <button id="load-btn" class="btn btn-secondary">Nạp kịch bản</button>
+        </div>
+
+        <!-- Goal input -->
+        <div class="control-group">
+          <label for="goal-input">Mục tiêu:</label>
+          <input
+            type="text"
+            id="goal-input"
+            placeholder="VD: Đưa pallet A tới chuyền 3, tránh người"
+            autocomplete="off"
+          />
+          <button id="voice-btn" class="btn btn-icon" title="Nhập bằng giọng nói (vi-VN)">🎤</button>
+        </div>
+
+        <!-- World hints -->
+        <p id="world-hints" class="world-hints"></p>
+
+        <!-- Capability chips -->
+        <div class="chips-section">
+          <div class="chips-label">Thử ngay — minh hoạ từng năng lực:</div>
+          <div class="chips-row">
+            <button class="chip" data-goal="Đưa pallet A tới chuyền 3" data-scenario="warehouse_basic" data-replay="hero_replan">
+              <span class="chip-icon">📦</span>
+              <span class="chip-text">Giao cơ bản</span>
+              <span class="chip-cap">lập kế hoạch + pick/drop</span>
+            </button>
+            <button class="chip" data-goal="Đưa pallet A tới chuyền 3, tránh người" data-scenario="warehouse_blocked" data-replay="hero_replan">
+              <span class="chip-icon">🚧</span>
+              <span class="chip-text">Replan (hero)</span>
+              <span class="chip-cap">tự lập lại KH khi bị người chặn</span>
+            </button>
+            <button class="chip" data-goal="Đưa pallet A sang chuyền 3" data-scenario="warehouse_blocked" data-replay="safety_ask">
+              <span class="chip-icon">🛑</span>
+              <span class="chip-text">An toàn dừng &amp; hỏi</span>
+              <span class="chip-cap">agent DỪNG khi người sát — human-in-loop</span>
+            </button>
+            <button class="chip" data-goal="Lấy thùng Z đưa sang chuyền 3" data-scenario="warehouse_basic" data-replay="infeasible_no">
+              <span class="chip-icon">⛔</span>
+              <span class="chip-text">Bất khả thi</span>
+              <span class="chip-cap">agent biết nói KHÔNG, không bịa</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Action buttons -->
+        <div class="control-group btn-row">
+          <div class="demo-group">
+            <button id="demo-btn" class="btn btn-primary btn-demo-cta">▶ Xem demo (khuyên dùng)</button>
+            <select id="replay-select" class="replay-select" title="Chọn bản ghi phát lại">
+              <option value="hero_replan">🚧 Replan — người chặn &amp; giao thành công</option>
+              <option value="safety_ask">🛑 An toàn — agent dừng &amp; hỏi</option>
+              <option value="infeasible_no">⛔ Bất khả thi — agent nói KHÔNG</option>
+            </select>
+          </div>
+          <button id="run-btn" class="btn btn-secondary" disabled>Chạy thật (Gemini)</button>
+        </div>
+
+        <p id="replay-note" class="replay-note" style="display:none"></p>
+
+      </section>
+
+      <div class="main-content">
+        <!-- Left: canvas -->
+        <div class="canvas-col">
+          <div class="canvas-wrapper" id="canvas-wrapper">
+            <canvas id="world-canvas" aria-label="Bản đồ kho mô phỏng — hiển thị robot, vật thể, người và khu vực"></canvas>
+          </div>
+          <p id="status-msg" class="status-msg">Đang tải...</p>
+
+          <section class="legend">
+            <div class="legend-item"><span class="swatch swatch-robot"></span> Robot</div>
+            <div class="legend-item"><span class="swatch swatch-object"></span> Vật thể / Pallet</div>
+            <div class="legend-item"><span class="swatch swatch-person"></span> Người</div>
+            <div class="legend-item"><span class="swatch swatch-obstacle"></span> Chướng ngại vật</div>
+            <div class="legend-item"><span class="swatch swatch-zone"></span> Vùng / Khu</div>
+          </section>
+        </div>
+
+        <!-- Right: panels -->
+        <div class="panels-col">
+          <div class="panel">
+            <div class="panel-header">📋 Kế hoạch</div>
+            <ol id="plan-list" class="plan-list">
+              <li class="plan-empty">Chưa có kế hoạch</li>
+            </ol>
+          </div>
+
+          <div class="panel panel-trace">
+            <div class="panel-header trace-header-row">
+              <span>🔍 Trace (minh bạch)</span>
+              <span id="grounded-badge" class="trace-grounded-badge" style="display:none">✓ 100% bám thực tế</span>
+              <button id="audit-btn" class="btn btn-audit" title="Tải toàn bộ trace dưới dạng JSON" disabled>⤓ Xuất audit log</button>
+            </div>
+            <div id="trace-log" class="trace-log"></div>
+          </div>
+
+          <div class="panel panel-metrics" id="metrics-panel" style="display:none">
+            <div class="panel-header">📊 Chỉ số lần chạy</div>
+            <p id="metrics-text" class="metrics-text"></p>
+          </div>
+
+          <div class="panel panel-ask" id="ask-panel" style="display:none">
+            <div class="panel-header ask-header">⚠ Agent dừng · Hỏi người vận hành</div>
+            <p id="ask-question" class="ask-question"></p>
+            <div class="ask-actions">
+              <input id="ask-answer" type="text" placeholder="Trả lời (tuỳ chọn)..." />
+              <button id="ask-continue-btn" class="btn btn-primary">Tiếp tục</button>
+            </div>
+          </div>
+
+          <div class="panel panel-answer" id="answer-panel" style="display:none">
+            <div class="panel-header answer-header">✅ Kết quả tác vụ</div>
+            <p id="answer-text" class="answer-text"></p>
+          </div>
+
+          <div class="panel panel-quota" id="quota-panel" style="display:none">
+            <div class="panel-header quota-header">⚡ Gemini đang bận / quá tải</div>
+            <p class="quota-msg">API gặp lỗi hoặc hết quota tạm thời. Bấm <strong>▶ Demo nhanh</strong> để xem bản ghi thật của agent ngay lập tức — không cần API.</p>
+            <button id="quota-demo-btn" class="btn btn-demo">▶ Demo nhanh (phát lại)</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+{
+  "width": 16,
+  "height": 10,
+  "robot": {
+    "id": "robot-1",
+    "kind": "robot",
+    "label": "Robot",
+    "pos": {
+      "x": 1,
+      "y": 1
+    },
+    "carrying": null
+  },
+  "objects": [
+    {
+      "id": "pallet-A",
+      "kind": "object",
+      "label": "pallet A",
+      "pos": {
+        "x": 3,
+        "y": 2
+      },
+      "carrying": null
+    }
+  ],
+  "people": [],
+  "obstacles": [],
+  "zones": [
+    {
+      "name": "khu A",
+      "cells": [
+        {
+          "x": 2,
+          "y": 2
+        },
+        {
+          "x": 3,
+          "y": 2
+        },
+        {
+          "x": 2,
+          "y": 3
+        },
+        {
+          "x": 3,
+          "y": 3
+        }
+      ]
+    },
+    {
+      "name": "chuyền 3",
+      "cells": [
+        {
+          "x": 12,
+          "y": 2
+        },
+        {
+          "x": 13,
+          "y": 2
+        },
+        {
+          "x": 12,
+          "y": 3
+        },
+        {
+          "x": 13,
+          "y": 3
+        }
+      ]
+    },
+    {
+      "name": "kho B",
+      "cells": [
+        {
+          "x": 13,
+          "y": 7
+        },
+        {
+          "x": 14,
+          "y": 7
+        },
+        {
+          "x": 13,
+          "y": 8
+        },
+        {
+          "x": 14,
+          "y": 8
+        }
+      ]
+    }
+  ],
+  "tick": 0,
+  "task": {
+    "id": "m09_language_case",
+    "goal_text": "ĐƯA Pallet a TỚI Chuyền 3",
+    "category": "language",
+    "feasible": true,
+    "success": {
+      "object": "pallet A",
+      "at_zone": "chuyền 3"
+    },
+    "dynamic": []
+  }
+}

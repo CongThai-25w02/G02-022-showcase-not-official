@@ -1,0 +1,22 @@
+{
+  "width": 16, "height": 10, "tick": 0,
+  "robot": {"id":"robot-1","kind":"robot","label":"Robot","pos":{"x":1,"y":1},"carrying":null},
+  "objects": [
+    {"id":"pallet-A","kind":"object","label":"pallet A","pos":{"x":3,"y":3},"carrying":null},
+    {"id":"box-B","kind":"object","label":"thùng B","pos":{"x":5,"y":5},"carrying":null}
+  ],
+  "people": [],
+  "obstacles": [],
+  "zones": [
+    {"name":"khu A","cells":[{"x":2,"y":2},{"x":3,"y":3}]},
+    {"name":"chuyền 3","cells":[{"x":12,"y":3},{"x":13,"y":3}]}
+  ],
+  "task": {
+    "id": "t17_robustness_vague",
+    "goal_text": "đưa hàng đi",
+    "category": "robustness",
+    "feasible": false,
+    "success": {"ask_human": true},
+    "dynamic": []
+  }
+}

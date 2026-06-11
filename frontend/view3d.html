@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RoboPlanner 3D — Kho thông minh AI</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* 3D-specific (does not touch the 2D app) */
+    #scene3d {
+      position: relative;
+      width: 100%;
+      height: 520px;
+      max-height: 70vh;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #0f141b;
+      touch-action: none;
+    }
+    #scene3d canvas { display: block; }
+    .scene-hud {
+      position: absolute; top: 10px; left: 10px;
+      display: flex; align-items: center; gap: 8px;
+      padding: 6px 11px; border-radius: 8px;
+      background: rgba(15,20,27,0.72); color: #e6edf5;
+      font-size: 13px; pointer-events: none;
+    }
+    .scene-hud .dot { width: 9px; height: 9px; border-radius: 50%; background: #5dcaa5; }
+    .scene-tip {
+      position: absolute; bottom: 10px; right: 11px;
+      font-size: 11px; color: #8aa0b8; pointer-events: none;
+    }
+    .view-switch { display: inline-flex; gap: 6px; margin-left: 12px; }
+    .view-switch a {
+      font-size: 12px; text-decoration: none; padding: 3px 10px;
+      border-radius: 999px; border: 1px solid rgba(125,145,170,0.4);
+      color: inherit; opacity: 0.85;
+    }
+    .view-switch a.active { background: rgba(47,116,192,0.22); border-color: rgba(47,116,192,0.6); opacity: 1; }
+    /* Scene editor toolbar */
+    .editor-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0 0 8px; }
+    .editor-label { font-size: 12px; opacity: 0.7; margin-right: 2px; }
+    .etool {
+      font-size: 13px; padding: 5px 10px; border-radius: 8px; cursor: pointer;
+      border: 1px solid rgba(125,145,170,0.4); background: transparent; color: inherit;
+    }
+    .etool.active { background: rgba(47,116,192,0.22); border-color: rgba(47,116,192,0.75); }
+    .editor-sep { flex: 1 1 6px; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <div class="header-left">
+        <h1>RoboPlanner <span style="opacity:.7;font-weight:400">3D</span></h1>
+        <span class="header-desc">Tự đặt cảnh · agent tự suy luận — render 3D (Three.js)</span>
+        <span class="view-switch">
+          <a href="index.html">Bản 2D</a>
+          <a href="view3d.html" class="active">Bản 3D</a>
+        </span>
+      </div>
+      <span id="status-badge" class="status-badge status-idle">CHƯA CHẠY</span>
+    </header>
+
+    <main class="app-body">
+      <section class="controls">
+        <div class="control-group">
+          <label for="scenario-select">Kịch bản:</label>
+          <select id="scenario-select">
+            <option value="warehouse_blocked">Kho có người chặn lối (hero)</option>
+            <option value="warehouse_basic">Kho cơ bản (không người)</option>
+            <option value="warehouse_dynamic">Kho động (người di chuyển)</option>
+          </select>
+          <button id="load-btn" class="btn btn-secondary">Nạp kịch bản</button>
+        </div>
+
+        <div class="control-group">
+          <label for="goal-input">Mục tiêu:</label>
+          <input type="text" id="goal-input" placeholder="VD: Đưa pallet A tới đích" autocomplete="off" />
+        </div>
+
+        <p id="world-hints" class="world-hints"></p>
+
+        <div class="chips-section">
+          <div class="chips-label">Thử ngay — minh hoạ từng năng lực:</div>
+          <div class="chips-row">
+            <button class="chip" data-goal="Đưa pallet A tới chuyền 3" data-scenario="warehouse_basic" data-replay="hero_replan">
+              <span class="chip-icon">📦</span><span class="chip-text">Giao cơ bản</span>
+              <span class="chip-cap">lập kế hoạch + pick/drop</span>
+            </button>
+            <button class="chip" data-goal="Đưa pallet A tới chuyền 3, tránh người" data-scenario="warehouse_blocked" data-replay="hero_replan">
+              <span class="chip-icon">🚧</span><span class="chip-text">Replan (hero)</span>
+              <span class="chip-cap">tự lập lại KH khi bị người chặn</span>
+            </button>
+            <button class="chip" data-goal="Đưa pallet A sang chuyền 3" data-scenario="warehouse_blocked" data-replay="safety_ask">
+              <span class="chip-icon">🛑</span><span class="chip-text">An toàn dừng &amp; hỏi</span>
+              <span class="chip-cap">agent DỪNG khi người sát — human-in-loop</span>
+            </button>
+            <button class="chip" data-goal="Lấy thùng Z đưa sang chuyền 3" data-scenario="warehouse_basic" data-replay="infeasible_no">
+              <span class="chip-icon">⛔</span><span class="chip-text">Bất khả thi</span>
+              <span class="chip-cap">agent biết nói KHÔNG, không bịa</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="control-group btn-row">
+          <div class="demo-group">
+            <button id="demo-btn" class="btn btn-primary btn-demo-cta">▶ Xem demo (khuyên dùng)</button>
+            <select id="replay-select" class="replay-select" title="Chọn bản ghi phát lại">
+              <option value="hero_replan">🚧 Replan — người chặn &amp; giao thành công</option>
+              <option value="safety_ask">🛑 An toàn — agent dừng &amp; hỏi</option>
+              <option value="infeasible_no">⛔ Bất khả thi — agent nói KHÔNG</option>
+            </select>
+          </div>
+          <button id="run-btn" class="btn btn-secondary" disabled>Chạy thật (Gemini)</button>
+        </div>
+
+        <p id="replay-note" class="replay-note" style="display:none"></p>
+      </section>
+
+      <div class="main-content">
+        <div class="canvas-col">
+          <!-- Scene editor: click a cell to place; rotation is locked -->
+          <div class="editor-bar">
+            <span class="editor-label">Đặt vào ô:</span>
+            <button class="etool active" data-tool="robot">🚜 Xe nâng</button>
+            <button class="etool" data-tool="pallet">📦 Pallet</button>
+            <button class="etool" data-tool="obstacle">🧱 Vật cản</button>
+            <button class="etool" data-tool="person">🧍 Người</button>
+            <button class="etool" data-tool="dest">🎯 Đích</button>
+            <button class="etool" data-tool="erase">🧽 Xoá ô</button>
+            <span class="editor-sep"></span>
+            <button id="clear-world-btn" class="btn btn-secondary">Xoá hết</button>
+            <button id="run-editor-btn" class="btn btn-primary">▶ Chạy agent trên cảnh này</button>
+          </div>
+
+          <div id="scene3d">
+            <div class="scene-hud"><span class="dot" id="hud-dot"></span><span id="hud-text">Sẵn sàng</span></div>
+            <div class="scene-tip">Bấm ô để đặt vật · cuộn để phóng to · (đã khoá xoay)</div>
+          </div>
+          <p id="status-msg" class="status-msg">Đang tải...</p>
+
+          <section class="legend">
+            <div class="legend-item"><span class="swatch swatch-robot"></span> Robot</div>
+            <div class="legend-item"><span class="swatch swatch-object"></span> Vật thể / Pallet</div>
+            <div class="legend-item"><span class="swatch swatch-person"></span> Người</div>
+            <div class="legend-item"><span class="swatch swatch-obstacle"></span> Chướng ngại vật</div>
+            <div class="legend-item"><span class="swatch swatch-zone"></span> Vùng / Khu</div>
+          </section>
+        </div>
+
+        <div class="panels-col">
+          <div class="panel">
+            <div class="panel-header">📋 Kế hoạch</div>
+            <ol id="plan-list" class="plan-list"><li class="plan-empty">Chưa có kế hoạch</li></ol>
+          </div>
+
+          <div class="panel panel-trace">
+            <div class="panel-header trace-header-row">
+              <span>🔍 Trace (minh bạch)</span>
+              <span id="grounded-badge" class="trace-grounded-badge" style="display:none">✓ 100% bám thực tế</span>
+              <button id="audit-btn" class="btn btn-audit" title="Tải toàn bộ trace dưới dạng JSON" disabled>⤓ Xuất audit log</button>
+            </div>
+            <div id="trace-log" class="trace-log"></div>
+          </div>
+
+          <div class="panel panel-metrics" id="metrics-panel" style="display:none">
+            <div class="panel-header">📊 Chỉ số lần chạy</div>
+            <p id="metrics-text" class="metrics-text"></p>
+          </div>
+
+          <div class="panel panel-ask" id="ask-panel" style="display:none">
+            <div class="panel-header ask-header">⚠ Agent dừng · Hỏi người vận hành</div>
+            <p id="ask-question" class="ask-question"></p>
+            <div class="ask-actions">
+              <input id="ask-answer" type="text" placeholder="Trả lời (tuỳ chọn)..." />
+              <button id="ask-continue-btn" class="btn btn-primary">Tiếp tục</button>
+            </div>
+          </div>
+
+          <div class="panel panel-answer" id="answer-panel" style="display:none">
+            <div class="panel-header answer-header">✅ Kết quả tác vụ</div>
+            <p id="answer-text" class="answer-text"></p>
+          </div>
+
+          <div class="panel panel-quota" id="quota-panel" style="display:none">
+            <div class="panel-header quota-header">⚡ Gemini đang bận / quá tải</div>
+            <p class="quota-msg">API gặp lỗi hoặc hết quota tạm thời. Bấm <strong>▶ Demo nhanh</strong> để xem bản ghi thật của agent ngay lập tức — không cần API.</p>
+            <button id="quota-demo-btn" class="btn btn-demo">▶ Demo nhanh (phát lại)</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- three.js: bundled locally (offline-safe); falls back to CDN only if the local copy is missing -->
+  <script src="vendor/three.min.js"></script>
+  <script>window.THREE||document.write('<scr'+'ipt src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/scr'+'ipt>');</script>
+  <script src="app3d.js"></script>
+</body>
+</html>

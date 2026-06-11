@@ -1,0 +1,33 @@
+{
+  "width": 20, "height": 15, "tick": 0,
+  "robot": {"id":"robot-1","kind":"robot","label":"Robot","pos":{"x":1,"y":1},"carrying":null},
+  "objects": [
+    {"id":"pallet-A","kind":"object","label":"pallet A","pos":{"x":3,"y":3},"carrying":null},
+    {"id":"box-B","kind":"object","label":"thùng B","pos":{"x":5,"y":5},"carrying":null},
+    {"id":"crate-C","kind":"object","label":"kiện C","pos":{"x":8,"y":8},"carrying":null},
+    {"id":"pallet-D","kind":"object","label":"pallet D","pos":{"x":10,"y":10},"carrying":null},
+    {"id":"box-E","kind":"object","label":"thùng E","pos":{"x":12,"y":12},"carrying":null}
+  ],
+  "people": [
+    {"id":"person-1","kind":"person","label":"Người 1","pos":{"x":7,"y":2},"carrying":null},
+    {"id":"person-2","kind":"person","label":"Người 2","pos":{"x":15,"y":8},"carrying":null}
+  ],
+  "obstacles": [
+    {"id":"o1","kind":"obstacle","label":null,"pos":{"x":6,"y":3},"carrying":null},
+    {"id":"o2","kind":"obstacle","label":null,"pos":{"x":6,"y":4},"carrying":null},
+    {"id":"o3","kind":"obstacle","label":null,"pos":{"x":11,"y":5},"carrying":null},
+    {"id":"o4","kind":"obstacle","label":null,"pos":{"x":11,"y":6},"carrying":null}
+  ],
+  "zones": [
+    {"name":"khu A","cells":[{"x":2,"y":2},{"x":3,"y":2},{"x":3,"y":3}]},
+    {"name":"chuyền 3","cells":[{"x":16,"y":3},{"x":17,"y":3},{"x":18,"y":3},{"x":16,"y":4},{"x":17,"y":4},{"x":18,"y":4}]}
+  ],
+  "task": {
+    "id": "t18_robustness_large",
+    "goal_text": "Đưa pallet A sang chuyền 3",
+    "category": "robustness",
+    "feasible": true,
+    "success": {"object":"pallet A","at_zone":"chuyền 3"},
+    "dynamic": []
+  }
+}

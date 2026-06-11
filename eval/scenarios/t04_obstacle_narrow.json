@@ -1,0 +1,29 @@
+{
+  "width": 16, "height": 10, "tick": 0,
+  "robot": {"id":"robot-1","kind":"robot","label":"Robot","pos":{"x":1,"y":4},"carrying":null},
+  "objects": [{"id":"pallet-A","kind":"object","label":"pallet A","pos":{"x":2,"y":4},"carrying":null}],
+  "people": [],
+  "obstacles": [
+    {"id":"o1","kind":"obstacle","label":null,"pos":{"x":6,"y":0},"carrying":null},
+    {"id":"o2","kind":"obstacle","label":null,"pos":{"x":6,"y":1},"carrying":null},
+    {"id":"o3","kind":"obstacle","label":null,"pos":{"x":6,"y":2},"carrying":null},
+    {"id":"o4","kind":"obstacle","label":null,"pos":{"x":6,"y":3},"carrying":null},
+    {"id":"o5","kind":"obstacle","label":null,"pos":{"x":6,"y":5},"carrying":null},
+    {"id":"o6","kind":"obstacle","label":null,"pos":{"x":6,"y":6},"carrying":null},
+    {"id":"o7","kind":"obstacle","label":null,"pos":{"x":6,"y":7},"carrying":null},
+    {"id":"o8","kind":"obstacle","label":null,"pos":{"x":6,"y":8},"carrying":null},
+    {"id":"o9","kind":"obstacle","label":null,"pos":{"x":6,"y":9},"carrying":null}
+  ],
+  "zones": [
+    {"name":"khu A","cells":[{"x":1,"y":4},{"x":2,"y":4}]},
+    {"name":"chuyền 3","cells":[{"x":12,"y":4},{"x":13,"y":4},{"x":14,"y":4}]}
+  ],
+  "task": {
+    "id": "t04_obstacle_narrow",
+    "goal_text": "Đưa pallet A sang chuyền 3 qua hành lang hẹp",
+    "category": "obstacle",
+    "feasible": true,
+    "success": {"object":"pallet A","at_zone":"chuyền 3"},
+    "dynamic": []
+  }
+}

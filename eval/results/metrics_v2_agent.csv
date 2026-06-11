@@ -1,0 +1,12 @@
+id,seed,category,feasible,success,steps,status,agent_distance,optimal_distance,spl,valid_action_rate,llm_calls,replans,latency_per_step,infeasible_correct,hallucinated_done
+m01_basic_a,0,basic,True,False,40,failed,0,13,0.0,0.025,42,0,10.552,False,False
+m02_basic_b,0,basic,True,False,40,failed,0,18,0.0,0.0,42,0,8.13,False,False
+m03_basic_c,0,basic,True,False,40,failed,0,21,0.0,0.0,42,0,7.481,False,False
+m04_obstacle_wall,0,obstacle,True,False,0,timeout,0,18,0.0,,,0,5655.395,False,False
+m05_obstacle_detour,0,obstacle,True,False,40,failed,0,24,0.0,0.0,42,0,4.334,False,False
+m06_obstacle_narrow,0,obstacle,True,False,40,failed,0,17,0.0,0.0,42,0,4.456,False,False
+m07_pickdrop_far,0,pick/drop,True,False,40,failed,0,23,0.0,0.0,42,0,3.92,False,False
+m08_pickdrop_cross,0,pick/drop,True,False,40,failed,0,18,0.0,0.0,42,0,4.096,False,False
+m09_language_case,0,language,True,False,40,failed,0,12,0.0,0.0,42,0,5.892,False,False
+m10_infeasible_missing,0,infeasible,False,False,40,failed,3,,,0.05,42,0,5.879,True,False
+m11_infeasible_enclosed,0,infeasible,False,False,40,failed,0,,,0.0,42,0,6.338,True,False

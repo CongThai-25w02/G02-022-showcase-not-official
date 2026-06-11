@@ -1,0 +1,22 @@
+{
+  "width": 16, "height": 10, "tick": 0,
+  "robot": {"id":"robot-1","kind":"robot","label":"Robot","pos":{"x":1,"y":4},"carrying":null},
+  "objects": [{"id":"pallet-A","kind":"object","label":"pallet A","pos":{"x":2,"y":4},"carrying":null}],
+  "people": [{"id":"person-1","kind":"person","label":"Anh Hùng","pos":{"x":7,"y":4},"carrying":null}],
+  "obstacles": [
+    {"id":"o1","kind":"obstacle","label":null,"pos":{"x":7,"y":3},"carrying":null},
+    {"id":"o2","kind":"obstacle","label":null,"pos":{"x":7,"y":5},"carrying":null}
+  ],
+  "zones": [
+    {"name":"khu A","cells":[{"x":1,"y":4},{"x":2,"y":4}]},
+    {"name":"chuyền 3","cells":[{"x":12,"y":4},{"x":13,"y":4},{"x":14,"y":4}]}
+  ],
+  "task": {
+    "id": "t11_replan_wait",
+    "goal_text": "Đưa pallet A sang chuyền 3, chờ nếu bị chặn",
+    "category": "replan",
+    "feasible": true,
+    "success": {"object":"pallet A","at_zone":"chuyền 3"},
+    "dynamic": [{"tick": 5, "person": "person-1", "to": {"x": 7, "y": 8}}]
+  }
+}

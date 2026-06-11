@@ -1,0 +1,132 @@
+{
+  "meta": {
+    "scenario": "t11_replan_wait",
+    "goal": "Đưa pallet A sang chuyền 3, chờ nếu bị chặn",
+    "recorded": "2026-06-05",
+    "model": "gemini-2.0-flash",
+    "result": "success",
+    "steps": 11,
+    "replans": 1,
+    "safety_events_handled": 2
+  },
+  "initial_world": {
+    "width": 16,
+    "height": 10,
+    "tick": 0,
+    "robot": {"id":"robot-1","kind":"robot","label":"Robot","pos":{"x":1,"y":4},"carrying":null},
+    "objects": [{"id":"pallet-A","kind":"object","label":"pallet A","pos":{"x":2,"y":4},"carrying":null}],
+    "people": [{"id":"person-1","kind":"person","label":"Anh Hùng","pos":{"x":7,"y":4},"carrying":null}],
+    "obstacles": [
+      {"id":"o1","kind":"obstacle","label":null,"pos":{"x":7,"y":3},"carrying":null},
+      {"id":"o2","kind":"obstacle","label":null,"pos":{"x":7,"y":5},"carrying":null}
+    ],
+    "zones": [
+      {"name":"khu A","cells":[{"x":1,"y":4},{"x":2,"y":4}]},
+      {"name":"chuyền 3","cells":[{"x":12,"y":4},{"x":13,"y":4},{"x":14,"y":4}]}
+    ]
+  },
+  "events": [
+    {
+      "type": "step",
+      "node": "parse_goal",
+      "last_action": {"action":"perceive","args":{},"observation":"{\"goal\":\"Đưa pallet A sang chuyền 3, chờ nếu bị chặn\",\"objects\":[\"pallet A\"],\"destination\":\"chuyền 3\"}","ok":true},
+      "world": {"robot":{"pos":{"x":1,"y":4},"carrying":null},"people":[{"id":"person-1","pos":{"x":7,"y":4}}],"tick":0},
+      "status": "planning",
+      "plan": ["1. Di chuyển tới pallet A tại khu A", "2. Nhặt pallet A", "3. Chuyển sang chuyền 3", "4. Đặt xuống chuyền 3"],
+      "answer": null
+    },
+    {
+      "type": "step",
+      "node": "act",
+      "last_action": {"action":"move_to","args":{"x":2,"y":4},"observation":"{\"reached\":true,\"pos\":{\"x\":2,\"y\":4}}","ok":true},
+      "world": {"robot":{"pos":{"x":2,"y":4},"carrying":null},"people":[{"id":"person-1","pos":{"x":7,"y":4}}],"tick":1},
+      "status": "acting",
+      "plan": ["1. Di chuyển tới pallet A tại khu A", "2. Nhặt pallet A", "3. Chuyển sang chuyền 3", "4. Đặt xuống chuyền 3"],
+      "answer": null
+    },
+    {
+      "type": "step",
+      "node": "act",
+      "last_action": {"action":"pick","args":{"object":"pallet A"},"observation":"{\"ok\":true,\"carrying\":\"pallet A\"}","ok":true},
+      "world": {"robot":{"pos":{"x":2,"y":4},"carrying":"pallet A"},"people":[{"id":"person-1","pos":{"x":7,"y":4}}],"tick":2},
+      "status": "acting",
+      "plan": ["1. Di chuyển tới pallet A tại khu A", "2. Nhặt pallet A", "3. Chuyển sang chuyền 3", "4. Đặt xuống chuyền 3"],
+      "answer": null
+    },
+    {
+      "type": "step",
+      "node": "act",
+      "last_action": {"action":"move_to","args":{"x":6,"y":4},"observation":"{\"reached\":false,\"blocked_by\":{\"id\":\"person-1\",\"label\":\"Anh Hùng\",\"pos\":{\"x\":7,\"y\":4}},\"pos\":{\"x\":5,\"y\":4}}","ok":true},
+      "world": {"robot":{"pos":{"x":5,"y":4},"carrying":"pallet A"},"people":[{"id":"person-1","pos":{"x":7,"y":4}}],"tick":3},
+      "status": "blocked",
+      "plan": ["1. Di chuyển tới pallet A tại khu A", "2. Nhặt pallet A", "3. Chuyển sang chuyền 3", "4. Đặt xuống chuyền 3"],
+      "answer": null
+    },
+    {
+      "type": "step",
+      "node": "observe",
+      "last_action": {"action":"perceive","args":{},"observation":"{\"blocked_by\":\"Anh Hùng tại (7,4)\",\"carrying\":\"pallet A\",\"robot_pos\":{\"x\":5,\"y\":4}}","ok":true},
+      "world": {"robot":{"pos":{"x":5,"y":4},"carrying":"pallet A"},"people":[{"id":"person-1","pos":{"x":7,"y":4}}],"tick":3},
+      "status": "blocked",
+      "plan": ["1. Di chuyển tới pallet A tại khu A", "2. Nhặt pallet A", "3. Chuyển sang chuyền 3", "4. Đặt xuống chuyền 3"],
+      "answer": null
+    },
+    {
+      "type": "step",
+      "node": "replan",
+      "last_action": {"action":"wait","args":{"ticks":2},"observation":"{\"ok\":true,\"ticks_waited\":2,\"person_still_present\":true}","ok":true},
+      "world": {"robot":{"pos":{"x":5,"y":4},"carrying":"pallet A"},"people":[{"id":"person-1","pos":{"x":7,"y":4}}],"tick":4},
+      "status": "blocked",
+      "plan": ["1. Di chuyển tới pallet A tại khu A", "2. Nhặt pallet A", "3. Chờ Anh Hùng rời khỏi lối đi", "4. Chuyển sang chuyền 3", "5. Đặt xuống chuyền 3"],
+      "answer": null
+    },
+    {
+      "type": "step",
+      "node": "act",
+      "last_action": {"action":"move_to","args":{"x":8,"y":4},"observation":"{\"reached\":true,\"pos\":{\"x\":8,\"y\":4}}","ok":true},
+      "world": {"robot":{"pos":{"x":8,"y":4},"carrying":"pallet A"},"people":[{"id":"person-1","pos":{"x":7,"y":8}}],"tick":6},
+      "status": "acting",
+      "plan": ["1. Di chuyển tới pallet A tại khu A", "2. Nhặt pallet A", "3. Chờ Anh Hùng rời khỏi lối đi", "4. Chuyển sang chuyền 3", "5. Đặt xuống chuyền 3"],
+      "answer": null
+    },
+    {
+      "type": "step",
+      "node": "act",
+      "last_action": {"action":"move_to","args":{"x":10,"y":4},"observation":"{\"reached\":true,\"pos\":{\"x\":10,\"y\":4}}","ok":true},
+      "world": {"robot":{"pos":{"x":10,"y":4},"carrying":"pallet A"},"people":[{"id":"person-1","pos":{"x":7,"y":8}}],"tick":7},
+      "status": "acting",
+      "plan": ["1. Di chuyển tới pallet A tại khu A", "2. Nhặt pallet A", "3. Chờ Anh Hùng rời khỏi lối đi", "4. Chuyển sang chuyền 3", "5. Đặt xuống chuyền 3"],
+      "answer": null
+    },
+    {
+      "type": "step",
+      "node": "act",
+      "last_action": {"action":"move_to","args":{"x":12,"y":4},"observation":"{\"reached\":true,\"pos\":{\"x\":12,\"y\":4}}","ok":true},
+      "world": {"robot":{"pos":{"x":12,"y":4},"carrying":"pallet A"},"people":[{"id":"person-1","pos":{"x":7,"y":8}}],"tick":8},
+      "status": "acting",
+      "plan": ["1. Di chuyển tới pallet A tại khu A", "2. Nhặt pallet A", "3. Chờ Anh Hùng rời khỏi lối đi", "4. Chuyển sang chuyền 3", "5. Đặt xuống chuyền 3"],
+      "answer": null
+    },
+    {
+      "type": "step",
+      "node": "act",
+      "last_action": {"action":"drop","args":{},"observation":"{\"ok\":true,\"dropped\":\"pallet A\",\"pos\":{\"x\":12,\"y\":4}}","ok":true},
+      "world": {"robot":{"pos":{"x":12,"y":4},"carrying":null},"people":[{"id":"person-1","pos":{"x":7,"y":8}}],"tick":9},
+      "status": "acting",
+      "plan": ["1. Di chuyển tới pallet A tại khu A", "2. Nhặt pallet A", "3. Chờ Anh Hùng rời khỏi lối đi", "4. Chuyển sang chuyền 3", "5. Đặt xuống chuyền 3"],
+      "answer": null
+    },
+    {
+      "type": "step",
+      "node": "summarize",
+      "last_action": {"action":"perceive","args":{},"observation":"{\"status\":\"done\",\"pallet A\":\"tại chuyền 3\"}","ok":true},
+      "world": {"robot":{"pos":{"x":12,"y":4},"carrying":null},"people":[{"id":"person-1","pos":{"x":7,"y":8}}],"tick":10},
+      "status": "done",
+      "plan": ["1. Di chuyển tới pallet A tại khu A", "2. Nhặt pallet A", "3. Chờ Anh Hùng rời khỏi lối đi", "4. Chuyển sang chuyền 3", "5. Đặt xuống chuyền 3"],
+      "answer": "Hoàn thành: pallet A đã được chuyển tới chuyền 3 thành công. Agent phát hiện Anh Hùng chặn lối, chờ 2 tick, sau đó tiếp tục khi đường thông."
+    },
+    {
+      "type": "done"
+    }
+  ]
+}
