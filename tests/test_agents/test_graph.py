@@ -64,9 +64,16 @@ async def test_graph_runs_to_completion() -> None:
     mock_llm.ainvoke = fake_ainvoke
     mock_llm.bind_tools = MagicMock(return_value=mock_llm)
 
-    with patch("src.agents.nodes.parse_goal.get_llm", return_value=mock_llm), \
-         patch("src.agents.nodes.plan_node.get_llm", return_value=mock_llm), \
-         patch("src.agents.nodes.act_node.get_llm", return_value=mock_llm):
+    import sys
+    import src.agents.nodes.parse_goal
+    import src.agents.nodes.plan_node
+    import src.agents.nodes.act_node
+    parse_goal_mod = sys.modules["src.agents.nodes.parse_goal"]
+    plan_node_mod = sys.modules["src.agents.nodes.plan_node"]
+    act_node_mod = sys.modules["src.agents.nodes.act_node"]
+    with patch.object(parse_goal_mod, "get_llm", return_value=mock_llm), \
+         patch.object(plan_node_mod, "get_llm", return_value=mock_llm), \
+         patch.object(act_node_mod, "get_llm", return_value=mock_llm):
         from src.agents.graph import build_graph
         g = build_graph()
         result = await g.ainvoke({"goal_text": "Đưa pallet A tới chuyền 3"})
@@ -103,9 +110,16 @@ async def test_graph_caps_at_max_steps() -> None:
     mock_llm.ainvoke = always_act
     mock_llm.bind_tools = MagicMock(return_value=mock_llm)
 
-    with patch("src.agents.nodes.parse_goal.get_llm", return_value=mock_llm), \
-         patch("src.agents.nodes.plan_node.get_llm", return_value=mock_llm), \
-         patch("src.agents.nodes.act_node.get_llm", return_value=mock_llm):
+    import sys
+    import src.agents.nodes.parse_goal
+    import src.agents.nodes.plan_node
+    import src.agents.nodes.act_node
+    parse_goal_mod = sys.modules["src.agents.nodes.parse_goal"]
+    plan_node_mod = sys.modules["src.agents.nodes.plan_node"]
+    act_node_mod = sys.modules["src.agents.nodes.act_node"]
+    with patch.object(parse_goal_mod, "get_llm", return_value=mock_llm), \
+         patch.object(plan_node_mod, "get_llm", return_value=mock_llm), \
+         patch.object(act_node_mod, "get_llm", return_value=mock_llm):
         from src.agents.graph import build_graph
         from src.config import get_settings
         max_steps = get_settings().max_steps
@@ -144,9 +158,16 @@ async def test_history_has_real_observations() -> None:
     mock_llm.ainvoke = fake_ainvoke
     mock_llm.bind_tools = MagicMock(return_value=mock_llm)
 
-    with patch("src.agents.nodes.parse_goal.get_llm", return_value=mock_llm), \
-         patch("src.agents.nodes.plan_node.get_llm", return_value=mock_llm), \
-         patch("src.agents.nodes.act_node.get_llm", return_value=mock_llm):
+    import sys
+    import src.agents.nodes.parse_goal
+    import src.agents.nodes.plan_node
+    import src.agents.nodes.act_node
+    parse_goal_mod = sys.modules["src.agents.nodes.parse_goal"]
+    plan_node_mod = sys.modules["src.agents.nodes.plan_node"]
+    act_node_mod = sys.modules["src.agents.nodes.act_node"]
+    with patch.object(parse_goal_mod, "get_llm", return_value=mock_llm), \
+         patch.object(plan_node_mod, "get_llm", return_value=mock_llm), \
+         patch.object(act_node_mod, "get_llm", return_value=mock_llm):
         from src.agents.graph import build_graph
         g = build_graph()
         result = await g.ainvoke({"goal_text": "test"})
@@ -208,9 +229,16 @@ async def test_done_only_valid_when_goal_achieved() -> None:
     mock_llm.ainvoke = fake_ainvoke
     mock_llm.bind_tools = _MagicMock(return_value=mock_llm)
 
-    with _patch("src.agents.nodes.parse_goal.get_llm", return_value=mock_llm), \
-         _patch("src.agents.nodes.plan_node.get_llm", return_value=mock_llm), \
-         _patch("src.agents.nodes.act_node.get_llm", return_value=mock_llm):
+    import sys
+    import src.agents.nodes.parse_goal
+    import src.agents.nodes.plan_node
+    import src.agents.nodes.act_node
+    parse_goal_mod = sys.modules["src.agents.nodes.parse_goal"]
+    plan_node_mod = sys.modules["src.agents.nodes.plan_node"]
+    act_node_mod = sys.modules["src.agents.nodes.act_node"]
+    with _patch.object(parse_goal_mod, "get_llm", return_value=mock_llm), \
+         _patch.object(plan_node_mod, "get_llm", return_value=mock_llm), \
+         _patch.object(act_node_mod, "get_llm", return_value=mock_llm):
         from src.agents.graph import build_graph
         g = build_graph()
         result = await g.ainvoke({"goal_text": "Đưa pallet A tới chuyền 3"})

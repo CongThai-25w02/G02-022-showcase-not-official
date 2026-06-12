@@ -64,12 +64,10 @@
 
     <main class="app-body">
       <section class="controls">
-        <div class="control-group">
+        <div class="control-group scenario-group">
           <label for="scenario-select">Kịch bản:</label>
-          <select id="scenario-select">
-            <option value="warehouse_blocked">Kho có người chặn lối (hero)</option>
-            <option value="warehouse_basic">Kho cơ bản (không người)</option>
-            <option value="warehouse_dynamic">Kho động (người di chuyển)</option>
+          <select id="scenario-select" title="Chọn kịch bản demo hoặc eval">
+            <option value="warehouse_blocked">Đang tải danh sách...</option>
           </select>
           <button id="load-btn" class="btn btn-secondary">Nạp kịch bản</button>
         </div>
@@ -101,6 +99,11 @@
               <span class="chip-cap">agent biết nói KHÔNG, không bịa</span>
             </button>
           </div>
+        </div>
+
+        <div class="chips-section chips-eval-section">
+          <div class="chips-label">Bộ kiểm thử eval — chọn nhanh rồi bấm Chạy thật (Gemini):</div>
+          <div id="eval-chips-row" class="chips-row chips-row-eval"></div>
         </div>
 
         <div class="control-group btn-row">
@@ -196,6 +199,7 @@
   <!-- three.js: bundled locally (offline-safe); falls back to CDN only if the local copy is missing -->
   <script src="vendor/three.min.js"></script>
   <script>window.THREE||document.write('<scr'+'ipt src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/scr'+'ipt>');</script>
+  <script src="scenarios-ui.js"></script>
   <script src="app3d.js"></script>
 </body>
 </html>

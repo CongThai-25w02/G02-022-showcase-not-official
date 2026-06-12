@@ -41,12 +41,10 @@
       <section class="controls">
 
         <!-- Scenario selector -->
-        <div class="control-group">
+        <div class="control-group scenario-group">
           <label for="scenario-select">Kịch bản:</label>
-          <select id="scenario-select">
-            <option value="warehouse_blocked">Kho có người chặn lối (hero)</option>
-            <option value="warehouse_basic">Kho cơ bản (không người)</option>
-            <option value="warehouse_dynamic">Kho động (người di chuyển)</option>
+          <select id="scenario-select" title="Chọn kịch bản demo hoặc eval">
+            <option value="warehouse_blocked">Đang tải danh sách...</option>
           </select>
           <button id="load-btn" class="btn btn-secondary">Nạp kịch bản</button>
         </div>
@@ -91,6 +89,12 @@
               <span class="chip-cap">agent biết nói KHÔNG, không bịa</span>
             </button>
           </div>
+        </div>
+
+        <!-- Eval quick-launch chips (populated by scenarios-ui.js) -->
+        <div class="chips-section chips-eval-section">
+          <div class="chips-label">Bộ kiểm thử eval — chọn nhanh rồi bấm Chạy thật (Gemini):</div>
+          <div id="eval-chips-row" class="chips-row chips-row-eval"></div>
         </div>
 
         <!-- Action buttons -->
@@ -174,6 +178,7 @@
     </main>
   </div>
 
+  <script src="scenarios-ui.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

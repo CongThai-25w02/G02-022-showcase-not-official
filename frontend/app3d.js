@@ -33,6 +33,7 @@ const auditBtn       = document.getElementById("audit-btn");
 const metricsPanel   = document.getElementById("metrics-panel");
 const metricsText    = document.getElementById("metrics-text");
 const groundedBadge  = document.getElementById("grounded-badge");
+const evalChipsRow   = document.getElementById("eval-chips-row");
 const hudDot         = document.getElementById("hud-dot");
 const hudText        = document.getElementById("hud-text");
 
@@ -834,20 +835,27 @@ async function postScenario(name) {
   return r.json();
 }
 
-async function loadAndDraw(stateFn) {
+async function loadAndDraw(stateFn, scenarioId) {
   statusMsg.textContent = "Đang tải..."; loadBtn.disabled = true;
   try {
     const state = await stateFn();
     currentState = state; renderFull(state); updateWorldHints(state);
     runBtn.disabled = false;
+    if (scenarioId) ScenariosUI.applyGoal(goalInput, scenarioId, state);
     statusMsg.textContent = `Tick ${state.tick} · ${state.width}×${state.height} · ${state.objects.length} vật thể · ${state.people.length} người`;
     setHud("Sẵn sàng — bấm ô để chỉnh cảnh", "#5dcaa5");
   } catch (err) { statusMsg.textContent = `Lỗi: ${err.message}`; console.error(err); }
   finally { if (!activeWS) loadBtn.disabled = false; }
 }
 
-loadBtn.addEventListener("click", () => { closeWS(); replayActive = false; setRunning(false); loadAndDraw(() => postScenario(scenarioSelect.value)); });
-scenarioSelect.addEventListener("change", () => { closeWS(); replayActive = false; setRunning(false); loadAndDraw(() => postScenario(scenarioSelect.value)); });
+function loadScenarioById(scenarioId) {
+  closeWS(); replayActive = false; setRunning(false);
+  if (scenarioSelect) scenarioSelect.value = scenarioId;
+  return loadAndDraw(() => postScenario(scenarioId), scenarioId);
+}
+
+loadBtn.addEventListener("click", () => loadScenarioById(scenarioSelect.value));
+scenarioSelect.addEventListener("change", () => loadScenarioById(scenarioSelect.value));
 
 // Render a FULL sample warehouse immediately so the 3D map is never empty —
 // even before data loads, with no backend, or offline. You can edit it freely.
@@ -857,10 +865,19 @@ updateWorldHints(currentState);
 setHud("Bấm ô để đặt vật · cuộn để phóng to", "#5dcaa5");
 
 (async function init() {
+  await ScenariosUI.fetchCatalog();
+  ScenariosUI.populateSelect(scenarioSelect, HERO_SCENARIO);
+  ScenariosUI.buildEvalChips(evalChipsRow, (scenarioId) => {
+    loadScenarioById(scenarioId).then(() => {
+      statusMsg.textContent += " · Bấm Chạy thật (Gemini) để chạy eval.";
+    });
+  });
+
   try {
     const state = await postScenario(HERO_SCENARIO);
     currentState = state; renderFull(state); updateWorldHints(state);
-    runBtn.disabled = false; goalInput.value = HERO_GOAL;
+    runBtn.disabled = false;
+    ScenariosUI.applyGoal(goalInput, HERO_SCENARIO, state);
     statusMsg.textContent = `Tick ${state.tick} · ${state.width}×${state.height} · ${state.objects.length} vật thể · ${state.people.length} người`;
     setHud("Sẵn sàng — bấm ô để chỉnh cảnh", "#5dcaa5");
   } catch (_e) {
