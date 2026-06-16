@@ -57,20 +57,69 @@ Một **agent lập kế hoạch** (LLM + tool‑calling) đứng giữa ngôn n
 
 ## Quick Start
 
+### 1. Môi trường (Python 3.11; 3.10 vẫn chạy được)
+
 ```bash
-# 1. Môi trường
-python3.11 -m venv .venv && source .venv/bin/activate
+# macOS / Linux
+python3 -m venv .venv && source .venv/bin/activate
+
+# Windows (PowerShell)
+py -3 -m venv .venv ; .venv\Scripts\Activate.ps1
+# Windows (Git Bash)
+python -m venv .venv && source .venv/Scripts/activate
+
 pip install -r requirements.txt
+```
 
-# 2. API key (KHÔNG commit)
-cp .env.example .env
-# điền GEMINI_API_KEY=... (Google AI Studio) + AI_LOG_API_KEY của BTC
+### 2. Cấu hình `.env` (KHÔNG commit — đã nằm trong `.gitignore`)
 
-# 3. Chạy backend (agent + sim + API)
+```bash
+cp .env.example .env      # Windows: copy .env.example .env
+```
+
+Chọn **một** nhà cung cấp LLM trong `.env` (agent chỉ hỗ trợ `gemini` hoặc `ollama` — **không** dùng OpenAI):
+
+**Cách A — Gemini (cloud, không cần cài gì thêm):**
+```env
+LLM_PROVIDER=gemini
+GEMINI_API_KEY=<key miễn phí từ https://aistudio.google.com/apikey>
+```
+
+**Cách B — Ollama (local, miễn phí, không cần API key):**
+```env
+LLM_PROVIDER=ollama
+OLLAMA_MODEL=qwen2.5:7b
+```
+Cần cài Ollama trước rồi tải model **hỗ trợ tool-calling** (agent dùng `bind_tools`):
+```bash
+# Windows: winget install Ollama.Ollama  |  macOS/Linux: xem https://ollama.com/download
+ollama pull qwen2.5:7b     # ~4.7 GB; máy yếu RAM dùng qwen2.5:3b
+ollama serve               # Windows thường tự chạy nền sau khi cài
+```
+> `langchain-ollama` đã có trong `requirements.txt`. Lần gọi agent đầu tiên mất ~1–2 phút để nạp model vào RAM (cần ~6 GB cho bản 7B), các lần sau nhanh hơn.
+
+### 3. Chạy backend (agent + sim + API + UI)
+
+```bash
 uvicorn src.main:app --reload --port 8000
-# Swagger: http://localhost:8000/docs
+```
 
-# 4. Mở giao diện sim (frontend) → nhập mục tiêu tiếng Việt → xem agent lập kế hoạch & chạy
+| | URL |
+|---|---|
+| 🌐 Giao diện sim (frontend) | http://localhost:8000 |
+| 📑 Swagger API | http://localhost:8000/docs |
+| ❤️ Health check | http://localhost:8000/health |
+
+### 4. Dùng thử
+
+Mở http://localhost:8000 → nhập mục tiêu tiếng Việt (vd: *"Đưa pallet A tới ô (10,8)"*) → xem agent lập kế hoạch & chạy theo thời gian thực.
+
+### (Tùy chọn) Chạy test & eval
+
+```bash
+pytest                                # toàn bộ test (tools, world, graph, eval)
+python eval/run_eval_v2.py            # Bảng B — solver A* tất định (KHÔNG cần LLM)
+python eval/run_eval_v2.py --seeds 3  # + Bảng A — agent thật (cần GEMINI_API_KEY hoặc Ollama)
 ```
 
 ## Project Structure
