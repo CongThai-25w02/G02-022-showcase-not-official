@@ -32,6 +32,7 @@ const auditBtn       = document.getElementById("audit-btn");
 const metricsPanel   = document.getElementById("metrics-panel");
 const metricsText    = document.getElementById("metrics-text");
 const groundedBadge  = document.getElementById("grounded-badge");
+const evalChipsRow   = document.getElementById("eval-chips-row");
 
 // ---------------------------------------------------------------------------
 // Runtime state
@@ -628,7 +629,7 @@ async function postScenario(name) {
   return resp.json();
 }
 
-async function loadAndDraw(stateFn) {
+async function loadAndDraw(stateFn, scenarioId) {
   statusMsg.textContent = "Đang tải...";
   loadBtn.disabled = true;
   try {
@@ -637,6 +638,7 @@ async function loadAndDraw(stateFn) {
     drawWorld(state);
     updateWorldHints(state);
     runBtn.disabled = false;
+    if (scenarioId) ScenariosUI.applyGoal(goalInput, scenarioId, state);
     statusMsg.textContent =
       `Tick ${state.tick} · ${state.width}×${state.height} · ` +
       `${state.objects.length} vật thể · ${state.people.length} người`;
@@ -648,16 +650,17 @@ async function loadAndDraw(stateFn) {
   }
 }
 
-loadBtn.addEventListener("click", () => {
-  closeWS(); replayActive = false; setRunning(false);
-  loadAndDraw(() => postScenario(scenarioSelect.value));
-});
+function loadScenarioById(scenarioId) {
+  closeWS();
+  replayActive = false;
+  setRunning(false);
+  if (scenarioSelect) scenarioSelect.value = scenarioId;
+  return loadAndDraw(() => postScenario(scenarioId), scenarioId);
+}
 
-// Đổi kịch bản ở dropdown → nạp lại world ngay để canvas khớp lựa chọn
-scenarioSelect.addEventListener("change", () => {
-  closeWS(); replayActive = false; setRunning(false);
-  loadAndDraw(() => postScenario(scenarioSelect.value));
-});
+loadBtn.addEventListener("click", () => loadScenarioById(scenarioSelect.value));
+
+scenarioSelect.addEventListener("change", () => loadScenarioById(scenarioSelect.value));
 
 window.addEventListener("resize", () => { if (currentState) drawWorld(currentState); });
 
@@ -684,16 +687,24 @@ window.addEventListener("resize", () => { if (currentState) drawWorld(currentSta
 })();
 
 // ---------------------------------------------------------------------------
-// Initial load — auto hero scenario
+// Initial load — catalog + hero scenario
 // ---------------------------------------------------------------------------
 (async function init() {
+  await ScenariosUI.fetchCatalog();
+  ScenariosUI.populateSelect(scenarioSelect, HERO_SCENARIO);
+  ScenariosUI.buildEvalChips(evalChipsRow, (scenarioId) => {
+    loadScenarioById(scenarioId).then(() => {
+      statusMsg.textContent += " · Bấm Chạy thật (Gemini) để chạy eval.";
+    });
+  });
+
   try {
     const state = await postScenario(HERO_SCENARIO);
     currentState = state;
     drawWorld(state);
     updateWorldHints(state);
     runBtn.disabled = false;
-    goalInput.value = HERO_GOAL;
+    ScenariosUI.applyGoal(goalInput, HERO_SCENARIO, state);
     statusMsg.textContent =
       `Tick ${state.tick} · ${state.width}×${state.height} · ` +
       `${state.objects.length} vật thể · ${state.people.length} người`;

@@ -120,7 +120,7 @@ def _unquote_arg(val):
 
 
 def _conv_cwds(transcript: Path) -> set[str]:
-    """All Cwd values that appear in tool calls inside this transcript."""
+    """All paths (Cwd, files, dirs) that appear in tool calls inside this transcript."""
     cwds: set[str] = set()
     try:
         with open(transcript, encoding="utf-8") as f:
@@ -134,12 +134,14 @@ def _conv_cwds(transcript: Path) -> set[str]:
                     continue
                 for tc in (entry.get("tool_calls") or []):
                     args = tc.get("args") or {}
-                    cwd = args.get("Cwd") or args.get("cwd")
-                    cwd = _unquote_arg(cwd)
-                    if isinstance(cwd, str):
-                        n = _normalize(cwd)
-                        if n:
-                            cwds.add(n)
+                    # Extract from common tool arguments containing workspace/file/directory paths
+                    for param in ("Cwd", "cwd", "DirectoryPath", "AbsolutePath", "TargetFile", "SearchPath"):
+                        val = args.get(param)
+                        val = _unquote_arg(val)
+                        if isinstance(val, str):
+                            n = _normalize(val)
+                            if n:
+                                cwds.add(n)
     except OSError:
         pass
     return cwds
@@ -212,8 +214,12 @@ def iter_user_inputs(brain_dirs: list[Path], cutoff: datetime | None,
             if only_conv and conv_dir.name != only_conv:
                 continue
             transcript = (
-                conv_dir / ".system_generated" / "logs" / "transcript.jsonl"
+                conv_dir / ".system_generated" / "logs" / "overview.txt"
             )
+            if not transcript.exists():
+                transcript = (
+                    conv_dir / ".system_generated" / "logs" / "transcript.jsonl"
+                )
             if not transcript.exists() or transcript.stat().st_size == 0:
                 continue
 

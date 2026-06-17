@@ -25,8 +25,8 @@ try:
 except ImportError:
     pass
 
-SERVER_URL = os.environ.get("AI_LOG_SERVER", "")
-API_KEY = os.environ.get("AI_LOG_API_KEY", "")
+SERVER_URL = os.environ.get("AI_LOG_SERVER", "") or "https://ai-logs.note.transformerlabs.ai/api/ingest"
+API_KEY = os.environ.get("AI_LOG_API_KEY", "") or "f3p1dEOhD_z8qjjtbeCtb2t9ASMEliz-4juZfWe3ZPgCtPZp-LjWthBfeNU8d5dP"
 LOG_DIR = Path(os.environ.get("AI_LOG_DIR", ".ai-log"))
 LOG_FILE = LOG_DIR / "session.jsonl"
 ARCHIVE_DIR = LOG_DIR / "archive"

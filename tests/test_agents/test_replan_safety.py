@@ -48,12 +48,23 @@ def _make_llm(responses: list) -> MagicMock:
 
 async def _run(goal: str, llm) -> dict:
     from src.agents.graph import build_graph
+    import sys
+    # Ensure they are imported first
+    import src.agents.nodes.parse_goal
+    import src.agents.nodes.plan_node
+    import src.agents.nodes.act_node
+    import src.agents.nodes.replan_node
+
+    parse_goal_mod = sys.modules["src.agents.nodes.parse_goal"]
+    plan_node_mod = sys.modules["src.agents.nodes.plan_node"]
+    act_node_mod = sys.modules["src.agents.nodes.act_node"]
+    replan_node_mod = sys.modules["src.agents.nodes.replan_node"]
 
     with (
-        patch("src.agents.nodes.parse_goal.get_llm", return_value=llm),
-        patch("src.agents.nodes.plan_node.get_llm", return_value=llm),
-        patch("src.agents.nodes.act_node.get_llm", return_value=llm),
-        patch("src.agents.nodes.replan_node.get_llm", return_value=llm),
+        patch.object(parse_goal_mod, "get_llm", return_value=llm),
+        patch.object(plan_node_mod, "get_llm", return_value=llm),
+        patch.object(act_node_mod, "get_llm", return_value=llm),
+        patch.object(replan_node_mod, "get_llm", return_value=llm),
     ):
         g = build_graph()
         return await g.ainvoke({"goal_text": goal})
@@ -89,7 +100,10 @@ async def test_replan_node_produces_new_plan() -> None:
         ],
     }
 
-    with patch("src.agents.nodes.replan_node.get_llm", return_value=llm):
+    import sys
+    import src.agents.nodes.replan_node
+    replan_node_mod = sys.modules["src.agents.nodes.replan_node"]
+    with patch.object(replan_node_mod, "get_llm", return_value=llm):
         result = await replan_node(state)
 
     assert result["replans"] == 1
@@ -116,7 +130,10 @@ async def test_replan_cap_leads_to_failed() -> None:
     }
 
     llm = _make_llm([json.dumps(["never called"])])
-    with patch("src.agents.nodes.replan_node.get_llm", return_value=llm):
+    import sys
+    import src.agents.nodes.replan_node
+    replan_node_mod = sys.modules["src.agents.nodes.replan_node"]
+    with patch.object(replan_node_mod, "get_llm", return_value=llm):
         result = await replan_node(state)
 
     assert result["status"] == "failed"

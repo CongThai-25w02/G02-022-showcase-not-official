@@ -3,68 +3,45 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>RoboPlanner 3D — Kho thông minh AI</title>
+  <title>RoboPlanner — Kho thông minh AI</title>
   <link rel="stylesheet" href="style.css" />
-  <style>
-    /* 3D-specific (does not touch the 2D app) */
-    #scene3d {
-      position: relative;
-      width: 100%;
-      height: 520px;
-      max-height: 70vh;
-      border-radius: 12px;
-      overflow: hidden;
-      background: #0f141b;
-      touch-action: none;
-    }
-    #scene3d canvas { display: block; }
-    .scene-hud {
-      position: absolute; top: 10px; left: 10px;
-      display: flex; align-items: center; gap: 8px;
-      padding: 6px 11px; border-radius: 8px;
-      background: rgba(15,20,27,0.72); color: #e6edf5;
-      font-size: 13px; pointer-events: none;
-    }
-    .scene-hud .dot { width: 9px; height: 9px; border-radius: 50%; background: #5dcaa5; }
-    .scene-tip {
-      position: absolute; bottom: 10px; right: 11px;
-      font-size: 11px; color: #8aa0b8; pointer-events: none;
-    }
-    .view-switch { display: inline-flex; gap: 6px; margin-left: 12px; }
-    .view-switch a {
-      font-size: 12px; text-decoration: none; padding: 3px 10px;
-      border-radius: 999px; border: 1px solid rgba(125,145,170,0.4);
-      color: inherit; opacity: 0.85;
-    }
-    .view-switch a.active { background: rgba(47,116,192,0.22); border-color: rgba(47,116,192,0.6); opacity: 1; }
-    /* Scene editor toolbar */
-    .editor-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0 0 8px; }
-    .editor-label { font-size: 12px; opacity: 0.7; margin-right: 2px; }
-    .etool {
-      font-size: 13px; padding: 5px 10px; border-radius: 8px; cursor: pointer;
-      border: 1px solid rgba(125,145,170,0.4); background: transparent; color: inherit;
-    }
-    .etool.active { background: rgba(47,116,192,0.22); border-color: rgba(47,116,192,0.75); }
-    .editor-sep { flex: 1 1 6px; }
-  </style>
 </head>
 <body>
   <div class="app">
     <header class="app-header">
       <div class="header-left">
-        <h1><a href="index.html" style="text-decoration: none; color: inherit;">RoboPlanner</a> <span style="opacity:.7;font-weight:400">3D</span></h1>
-        <span class="header-desc">Tự đặt cảnh · agent tự suy luận — render 3D (Three.js)</span>
-        <span class="view-switch">
-          <a href="index.html" style="opacity: 0.85;">◀ Trang chủ</a>
-          <a href="simulator.html">Bản 2D</a>
-          <a href="view3d.html" class="active">Bản 3D</a>
-        </span>
+        <h1><a href="index.html" style="text-decoration: none; color: inherit;">RoboPlanner</a></h1>
+        <span class="header-desc">Lập kế hoạch tác vụ kho bằng AI agent</span>
+        <span class="sim-badge">thế giới mô phỏng · agent thật</span>
+        <a href="index.html" style="margin-left:12px;font-size:12px;text-decoration:none;padding:3px 10px;border-radius:999px;border:1px solid rgba(125,145,170,0.45);color:inherit;opacity:.85">◀ Trang chủ</a>
+        <a href="view3d.html" style="margin-left:8px;font-size:12px;text-decoration:none;padding:3px 10px;border-radius:999px;border:1px solid rgba(125,145,170,0.45);color:inherit;opacity:.85">Bản 3D ▶</a>
       </div>
       <span id="status-badge" class="status-badge status-idle">CHƯA CHẠY</span>
     </header>
 
+    <!-- Use-case block -->
+    <details class="use-case-details">
+    <summary class="use-case-summary">Về ứng dụng &amp; lộ trình</summary>
+    <section class="use-case-block">
+      <span class="use-case-icon">🏭</span>
+      <div class="use-case-body">
+        <p class="use-case-text">
+          <strong>Ứng dụng:</strong> Robot vận chuyển kho VinFast — vận hành viên ra lệnh tiếng Việt
+          thay vì lập trình; agent tự xử lý khi môi trường đổi; trace minh bạch để audit an toàn.
+        </p>
+        <p class="roadmap-text">
+          <strong>Lộ trình tới robot thật:</strong> Bản này chứng minh lớp
+          <em>NGÔN NGỮ → KẾ HOẠCH → KIỂM CHỨNG</em> trong mô phỏng;
+          bản sản xuất nối tool move/pick vào ROS + perception camera thật.
+        </p>
+      </div>
+    </section>
+    </details>
+
     <main class="app-body">
       <section class="controls">
+
+        <!-- Scenario selector -->
         <div class="control-group scenario-group">
           <label for="scenario-select">Kịch bản:</label>
           <select id="scenario-select" title="Chọn kịch bản demo hoặc eval">
@@ -73,40 +50,55 @@
           <button id="load-btn" class="btn btn-secondary">Nạp kịch bản</button>
         </div>
 
+        <!-- Goal input -->
         <div class="control-group">
           <label for="goal-input">Mục tiêu:</label>
-          <input type="text" id="goal-input" placeholder="VD: Đưa pallet A tới đích" autocomplete="off" />
+          <input
+            type="text"
+            id="goal-input"
+            placeholder="VD: Đưa pallet A tới chuyền 3, tránh người"
+            autocomplete="off"
+          />
+          <button id="voice-btn" class="btn btn-icon" title="Nhập bằng giọng nói (vi-VN)">🎤</button>
         </div>
 
+        <!-- World hints -->
         <p id="world-hints" class="world-hints"></p>
 
+        <!-- Capability chips -->
         <div class="chips-section">
           <div class="chips-label">Thử ngay — minh hoạ từng năng lực:</div>
           <div class="chips-row">
             <button class="chip" data-goal="Đưa pallet A tới chuyền 3" data-scenario="warehouse_basic" data-replay="hero_replan">
-              <span class="chip-icon">📦</span><span class="chip-text">Giao cơ bản</span>
+              <span class="chip-icon">📦</span>
+              <span class="chip-text">Giao cơ bản</span>
               <span class="chip-cap">lập kế hoạch + pick/drop</span>
             </button>
             <button class="chip" data-goal="Đưa pallet A tới chuyền 3, tránh người" data-scenario="warehouse_blocked" data-replay="hero_replan">
-              <span class="chip-icon">🚧</span><span class="chip-text">Replan (hero)</span>
+              <span class="chip-icon">🚧</span>
+              <span class="chip-text">Replan (hero)</span>
               <span class="chip-cap">tự lập lại KH khi bị người chặn</span>
             </button>
             <button class="chip" data-goal="Đưa pallet A sang chuyền 3" data-scenario="warehouse_blocked" data-replay="safety_ask">
-              <span class="chip-icon">🛑</span><span class="chip-text">An toàn dừng &amp; hỏi</span>
+              <span class="chip-icon">🛑</span>
+              <span class="chip-text">An toàn dừng &amp; hỏi</span>
               <span class="chip-cap">agent DỪNG khi người sát — human-in-loop</span>
             </button>
             <button class="chip" data-goal="Lấy thùng Z đưa sang chuyền 3" data-scenario="warehouse_basic" data-replay="infeasible_no">
-              <span class="chip-icon">⛔</span><span class="chip-text">Bất khả thi</span>
+              <span class="chip-icon">⛔</span>
+              <span class="chip-text">Bất khả thi</span>
               <span class="chip-cap">agent biết nói KHÔNG, không bịa</span>
             </button>
           </div>
         </div>
 
+        <!-- Eval quick-launch chips (populated by scenarios-ui.js) -->
         <div class="chips-section chips-eval-section">
           <div class="chips-label">Bộ kiểm thử eval — chọn nhanh rồi bấm Chạy thật (Gemini):</div>
           <div id="eval-chips-row" class="chips-row chips-row-eval"></div>
         </div>
 
+        <!-- Action buttons -->
         <div class="control-group btn-row">
           <div class="demo-group">
             <button id="demo-btn" class="btn btn-primary btn-demo-cta">▶ Xem demo (khuyên dùng)</button>
@@ -120,27 +112,14 @@
         </div>
 
         <p id="replay-note" class="replay-note" style="display:none"></p>
+
       </section>
 
       <div class="main-content">
+        <!-- Left: canvas -->
         <div class="canvas-col">
-          <!-- Scene editor: click a cell to place; rotation is locked -->
-          <div class="editor-bar">
-            <span class="editor-label">Đặt vào ô:</span>
-            <button class="etool active" data-tool="robot">🚜 Xe nâng</button>
-            <button class="etool" data-tool="pallet">📦 Pallet</button>
-            <button class="etool" data-tool="obstacle">🧱 Vật cản</button>
-            <button class="etool" data-tool="person">🧍 Người</button>
-            <button class="etool" data-tool="dest">🎯 Đích</button>
-            <button class="etool" data-tool="erase">🧽 Xoá ô</button>
-            <span class="editor-sep"></span>
-            <button id="clear-world-btn" class="btn btn-secondary">Xoá hết</button>
-            <button id="run-editor-btn" class="btn btn-primary">▶ Chạy agent trên cảnh này</button>
-          </div>
-
-          <div id="scene3d">
-            <div class="scene-hud"><span class="dot" id="hud-dot"></span><span id="hud-text">Sẵn sàng</span></div>
-            <div class="scene-tip">Bấm ô để đặt vật · cuộn để phóng to · (đã khoá xoay)</div>
+          <div class="canvas-wrapper" id="canvas-wrapper">
+            <canvas id="world-canvas" aria-label="Bản đồ kho mô phỏng — hiển thị robot, vật thể, người và khu vực"></canvas>
           </div>
           <p id="status-msg" class="status-msg">Đang tải...</p>
 
@@ -153,10 +132,13 @@
           </section>
         </div>
 
+        <!-- Right: panels -->
         <div class="panels-col">
           <div class="panel">
             <div class="panel-header">📋 Kế hoạch</div>
-            <ol id="plan-list" class="plan-list"><li class="plan-empty">Chưa có kế hoạch</li></ol>
+            <ol id="plan-list" class="plan-list">
+              <li class="plan-empty">Chưa có kế hoạch</li>
+            </ol>
           </div>
 
           <div class="panel panel-trace">
@@ -197,10 +179,7 @@
     </main>
   </div>
 
-  <!-- three.js: bundled locally (offline-safe); falls back to CDN only if the local copy is missing -->
-  <script src="vendor/three.min.js"></script>
-  <script>window.THREE||document.write('<scr'+'ipt src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/scr'+'ipt>');</script>
   <script src="scenarios-ui.js"></script>
-  <script src="app3d.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>

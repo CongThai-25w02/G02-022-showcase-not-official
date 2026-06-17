@@ -6,6 +6,7 @@ from pathlib import Path
 from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect
 
 from src.agents.graph import agent
+from src.api.scenario_catalog import EVAL_QUICK, list_scenarios
 from src.models.schemas import RunRequest, RunResponse, WorldState
 from src.services.world import World, get_current_world, set_current_world
 
@@ -32,6 +33,12 @@ async def set_world_state(state: WorldState) -> WorldState:
     world = World.from_scenario(state.model_dump(), check_invariants=False)
     set_current_world(world)
     return world.to_state()
+
+
+@router.get("/scenarios")
+async def get_scenarios() -> dict:
+    """List all eval/demo scenarios for the web UI dropdown."""
+    return {"scenarios": list_scenarios(), "eval_quick": EVAL_QUICK}
 
 
 @router.post("/scenario", response_model=WorldState)

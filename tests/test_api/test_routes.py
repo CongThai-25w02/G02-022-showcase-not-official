@@ -33,6 +33,20 @@ async def test_get_world(client):
 
 
 @pytest.mark.asyncio
+async def test_list_scenarios(client):
+    response = await client.get("/api/v1/scenarios")
+    assert response.status_code == 200
+    data = response.json()
+    assert "scenarios" in data
+    assert "eval_quick" in data
+    ids = {s["id"] for s in data["scenarios"]}
+    assert "warehouse_basic" in ids
+    assert "m01_basic_a" in ids
+    assert "t01_basic_move" in ids
+    assert len(data["scenarios"]) >= 30
+
+
+@pytest.mark.asyncio
 async def test_load_scenario_basic(client):
     response = await client.post("/api/v1/scenario?name=warehouse_basic")
     assert response.status_code == 200
@@ -77,9 +91,16 @@ async def test_run_endpoint_returns_trace(client):
     mock_llm.ainvoke = fake_ainvoke
     mock_llm.bind_tools = MagicMock(return_value=mock_llm)
 
-    with patch("src.agents.nodes.parse_goal.get_llm", return_value=mock_llm), \
-         patch("src.agents.nodes.plan_node.get_llm", return_value=mock_llm), \
-         patch("src.agents.nodes.act_node.get_llm", return_value=mock_llm):
+    import sys
+    import src.agents.nodes.parse_goal
+    import src.agents.nodes.plan_node
+    import src.agents.nodes.act_node
+    parse_goal_mod = sys.modules["src.agents.nodes.parse_goal"]
+    plan_node_mod = sys.modules["src.agents.nodes.plan_node"]
+    act_node_mod = sys.modules["src.agents.nodes.act_node"]
+    with patch.object(parse_goal_mod, "get_llm", return_value=mock_llm), \
+         patch.object(plan_node_mod, "get_llm", return_value=mock_llm), \
+         patch.object(act_node_mod, "get_llm", return_value=mock_llm):
         response = await client.post(
             "/api/v1/run",
             json={"goal_text": "Đưa pallet A tới chuyền 3"},

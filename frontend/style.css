@@ -312,6 +312,26 @@ html, body {
   font-style: italic;
 }
 
+.chips-eval-section {
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--border);
+}
+
+.chips-row-eval .chip-eval {
+  min-width: 100px;
+  max-width: 150px;
+}
+
+.scenario-group select {
+  min-width: min(100%, 320px);
+  max-width: 100%;
+}
+
+.scenario-group {
+  flex-wrap: wrap;
+}
+
 /* Demo group: button + replay select together */
 .demo-group {
   display: flex;
