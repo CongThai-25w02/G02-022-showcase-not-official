@@ -125,7 +125,7 @@ uvicorn src.main:app --reload --port 8000
 |--------|------|-----------|
 | Lưu Công Thái | Agent core (LangGraph) + Gemini · Product lead | 2A202600949 |
 | Lê Hữu Đạt | Sim World + Tools + FastAPI/backend | 2A202600630 |
-| Nguyễn Đình Tiến Mạnh | Frontend (canvas/trace) + Evaluation + Demo | _[điền MSSV]_ |
+| Nguyễn Đình Tiến Mạnh | Frontend (canvas/trace) + Evaluation + Demo | 2A202600907 |
 
 > _Phân vai có thể điều chỉnh theo thực tế._
 
