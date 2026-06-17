@@ -7,20 +7,25 @@
 
 ## Bảng A — Agent thật (LLM, LangGraph)
 
-- n = **11** lần chạy (9 task feasible × 1 seed; +2 run infeasible)
+- n = **33** lần chạy (9 task feasible × 3 seed; +6 run infeasible)
 
 
 | Chỉ số | Kết quả (mean ± std) | Mục tiêu |
 |---|---|---|
-| success_rate (feasible) | **0% ± 0.0%** | ≥90% |
-| SPL (path-efficiency) | **0.0 ± 0.0** | ≥0.80 |
-| valid_action_rate | 0.8% ± 1.6% | ≥95% |
-| infeasible/abstention accuracy | 100.0% (2/2) | 100% |
-| LLM calls/task | 42 ± 0.0 | (báo thật) |
+| success_rate (feasible) | **70.4% ± 33.1%** | ≥90% |
+| pass^k — success ở CẢ k=3 seed (τ-bench) | **44.4%** | ≥80% |
+| SPL (path-efficiency) | **0.395 ± 0.438** | ≥0.80 |
+| path_overhead (đi thật/tối ưu, run thành công) | 4.86 ± 4.75 | ≤1.25 |
+| completion_rate (không timeout/error) | 100.0% (33/33) | 100% |
+| valid_action_rate | 98.6% ± 3.4% | ≥95% |
+| grounded_action_rate (mutate có quan sát trước) | 40.1% ± 39.4% | ≥95% |
+| infeasible/abstention accuracy | 100.0% (6/6) | 100% |
+| hallucinated_done_rate (tự khai done, oracle bác) | 0.0% (0/33) | 0% |
+| LLM calls/task | 30.2 ± 15.0 | (báo thật) |
 | replans/task | 0 | (báo thật) |
-| latency/bước | 6.11s ± 2.01s | (báo thật) |
+| latency/bước | 4.56s ± 0.56s | (báo thật) |
 
-*SPL = success × optimal_path / max(optimal, actual). valid_action_rate = bước có tool-call hợp lệ / tổng bước. LLM calls suy ra từ cấu trúc đồ thị (parse+plan+replan+act).*
+*SPL = success × optimal_path / max(optimal, actual). valid_action_rate = bước có tool-call hợp lệ / tổng bước. pass^k = % task thành công ở cả k seed (đo độ ổn định, τ-bench). grounded_action_rate = % move/pick/drop có perceive/locate/check_path thành công trước đó trong episode. LLM calls suy ra từ cấu trúc đồ thị (parse+plan+replan+act). Định nghĩa & nguồn: SURVEY_metrics.md.*
 
 
 ## Bảng B — Solver xác định (A*, KHÔNG phải agent)
@@ -53,7 +58,7 @@
 
 - Latency báo nguyên trạng; đây là planner mức nhiệm vụ, không phải vòng điều khiển realtime.
 
-- Metric đánh giá agent: **success_rate, SPL (path-efficiency), valid_action_rate, infeasible/abstention accuracy, LLM calls + replans (cost)**. SPL & cost so với lời giải A* tối ưu — đo hiệu quả, không chỉ đúng/sai.
+- Metric đánh giá agent: **success_rate, pass^k (reliability), SPL + path_overhead (efficiency), completion_rate, valid_action_rate, grounded_action_rate, infeasible/abstention accuracy, hallucinated_done_rate (honesty), LLM calls + replans (cost)**. So với lời giải A* tối ưu — đo hiệu quả, không chỉ đúng/sai. Khảo sát & định nghĩa: `SURVEY_metrics.md`.
 
 - Backend LLM ghi rõ ở tiêu đề Bảng A (Gemini cloud hay Ollama local). Số local & cloud KHÔNG trộn trong cùng một bảng.
 
