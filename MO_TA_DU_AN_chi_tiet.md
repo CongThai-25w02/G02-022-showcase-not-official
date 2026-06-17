@@ -341,7 +341,7 @@ python eval/run_eval_v2.py --seeds 3  # + Bảng A (cần Gemini hoặc Ollama)
 |---|---|---|
 | Lưu Công Thái | Agent core (LangGraph) + LLM · Product lead | 2A202600949 |
 | Lê Hữu Đạt | Sim World + Tools + FastAPI/backend | 2A202600630 |
-| Nguyễn Đình Tiến Mạnh | Frontend (canvas/trace) + Evaluation + Demo | _[điền MSSV]_ |
+| Nguyễn Đình Tiến Mạnh | Frontend (canvas/trace) + Evaluation + Demo | 2A202600907 |
 
 License: **MIT**.
 
